@@ -1,12 +1,15 @@
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 import json
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
 
+cap = DesiredCapabilities().FIREFOX
+cap["marionette"] = False
 settings = json.load(open('settings.json'))
-driver = webdriver.Chrome(ChromeDriverManager().install())
+driver = webdriver.Chrome(desired_capabilities=cap, executable_path=GeckoDriverManager().install())
 # scope the search to https://pcrs.teach.cs.toronto.edu/csc209-2022-01/problems/multiple_choice/(some number)/run using regex
 driver.scopes = [
     'https://pcrs.teach.cs.toronto.edu/csc209-2022-01/problems/multiple_choice/[0-9]+/run'
@@ -22,7 +25,6 @@ questions = [q for q in questions if q.get_attribute('id').startswith('multiple_
 for question in questions:
     del driver.requests
     curr_prob = []
-    current_url = f"{settings['base_pcrs']}problems/multiple_choice/{question.get_attribute('id').split('-')[-1]}/run"
     # get all checkboxes for this question
     boxes = driver.find_elements(by=By.XPATH, value=f"//*[@id='{question.get_attribute('id')}']//input[@type='checkbox']")
     for box in boxes:
@@ -50,6 +52,5 @@ for question in questions:
     for i in box_indices:
         boxes[i].click()
     driver.find_element(by=By.XPATH, value=f"//*[@id='{question.get_attribute('id')}']//*[@id='submit-id-submit']").click()
-    time.sleep(0.3)
 
 time.sleep(20)
