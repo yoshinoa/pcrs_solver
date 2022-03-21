@@ -39,7 +39,6 @@ for question in questions:
             # convert request to json object
             curr_prob.append(json.loads(decode(request.response.body, request.response.headers.get('Content-Encoding', 'identity')).decode('utf-8')))
     prob_max = 0
-    print(curr_prob)
     for prob in curr_prob:
         if prob['score'] > prob_max:
             prob_max = prob['score']
@@ -48,7 +47,6 @@ for question in questions:
         if prob['score'] == prob_max:
             box_indices.append(i)
     boxes = driver.find_elements(by=By.XPATH, value=f"//*[@id='{question.get_attribute('id')}']//input[@type='checkbox']")
-    print(box_indices)
     for i in box_indices:
         boxes[i].click()
     driver.find_element(by=By.XPATH, value=f"//*[@id='{question.get_attribute('id')}']//*[@id='submit-id-submit']").click()
